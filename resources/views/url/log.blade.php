@@ -13,21 +13,36 @@
                     
                     <div>
 
+                        <div class="m-5 flex justify-around">
+
+                        </div>
+
+
+
+                        <br/>
+                        <hr/>
+                        <br/>
+
                         <div class="my-5">
 
                             <table class="w-full">
 
                                 <tr class="bg-green-800">
-                                    <th>Shorten Url</th>
+                                    <th>User id</th>
+                                    <th>Url</th>
+                                    <th>No of Visit</th>
+                                    <th>IP Address</th>
+                                    <th>Time</th>
                                 </tr>
 
-
-                                @foreach( $total_urls as $total_url) 
+                                @foreach($url_logs as $url_log) 
 
                                     <tr class="text-center">
-
-                                        <td><a href="{{ route('redirect', ['url' => urlencode($total_url->url)]) }}">{{$total_url->shorten_url}}</a></td>
-
+                                        <td>{{$url_log->name}}</td>
+                                        <td>{{$url_log->url}}</td>
+                                        <td>{{$url_log->total_count }}</td>
+                                        <td>{{$url_log->ip_address}}</td>
+                                        <td>{{date('d M Y h:i a',strtotime($url_log->last_seen))}}</td>
                                     </tr>
 
                                 @endforeach

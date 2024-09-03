@@ -2,7 +2,13 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UrlController;
+use App\Http\Controllers\LogController;
+
+use App\Http\Middleware\Logs;
+
 use Illuminate\Support\Facades\Route;
+
+use App\Models\UrlLogs;
 
 Route::get('/', function () {
 
@@ -18,6 +24,16 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
+
+Route::get('/redirect', function (Request $request) {
+
+    $url = request('url'); 
+    
+    return redirect()->away(urldecode($url));
+
+})->middleware(['auth','verified',Logs::class])->name('redirect');
+
+
 Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -30,8 +46,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/url/create', [UrlController::class, 'store'])->name('url.store');
 
-    Route::get('/url/show', [UrlController::class, 'show'])->name('url.show');
+    Route::get('/url/list', [UrlController::class, 'list'])->name('url.list');
+
+    Route::get('/logs', [LogController::class, 'logs'])->name('logs');
 
 });
+
+
 
 require __DIR__.'/auth.php';

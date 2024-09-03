@@ -7,13 +7,18 @@ use App\Models\Urls;
 
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Arr;
+
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 
 class UrlController extends Controller
 {
     
     public function create() {
+
+        
         
         return view('url.create');
 
@@ -37,26 +42,65 @@ class UrlController extends Controller
 
         $urls = new Urls();
 
-        $start  = 0*(26**3)+0*(26**2)+0*26+0;
 
-        for($j=$start;;$j++) {
+        
+
+        $j = 0;
+
+        for($i=65;$i<=122;$i++) {
+
+            if($i>90 && $i<97){
             
-            $short_url2 ="bitly/";
-
-            $r = ($j%26)+1;
-
-            $q = (int)($j/26);
-
-            $short_url2 = $short_url2.chr(64+(($q/26)/26)%26 +1).chr(64+ (($q/26)%26)+1).chr(64+ ($q%26)+1).chr(64+ $r); 
+                continue;
             
-            if(Urls::where('shorten_url',$short_url2)->get()->isEmpty()) {
+            } else {
+            
+                $char_arr[$j++] = chr($i);
+            
+            }
+        }
+        
+        for($i=0;$i<10;$i++) {
+            $char_arr[$j++] = $i;
+        }
 
-                $urls->shorten_url = $short_url2;
+
+        $string = "";
+
+        $j=0;
+
+        while(1){
+        
+            for($i=0;$i<62**(4+$j);$i++) {
+
+                $taken_char = Arr::random($char_arr,(4+$j));
+
+                $string = implode("",$taken_char);
+
+                if(Urls::where('shorten_url',$string)->get()->isEmpty()) {
+
+                    $urls->shorten_url = url('/').'/'.$string;
+
+                    break;
+
+                } else {
+
+                    $string ="";
+                }
+            
+            }  
+            
+            if($string == "") {
+
+                $j++;
+
+            } else {
 
                 break;
-            }   
+            }
 
         }
+        
 
         $urls->url = $url;
 
@@ -64,21 +108,26 @@ class UrlController extends Controller
 
         $urls->save();
 
-        return view('dashboard');
+        $total_urls = Urls::get();
+        
+        $user_urls = Urls::where('created_by',auth()->id())->get();
+
+        return view('url.show',[
+
+            'total_urls' => $total_urls,
+        
+        ]);
 
     }
 
-    public function show() {
+    public function list() {
 
-        $total_urls = Urls::count();
-        
-        $user_urls = Urls::where('created_by',auth()->id())->get();
+        $total_urls = Urls::get();
         
         return view("url.show",[
 
             'total_urls' => $total_urls,
 
-            'user_urls' => $user_urls,
         ]);
     }
 }
